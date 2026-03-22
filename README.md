@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DesignToCode
+
+A tool that analyzes website screenshots and generates implementation prompts.
+
+## Tech Stack
+
+- Next.js 14 (App Router)
+- TypeScript
+- Tailwind CSS
+- shadcn/ui
+- Framer Motion
+- Lucide React (icons)
+- React Dropzone (file uploads)
+- Vercel AI SDK (streaming responses)
 
 ## Getting Started
 
-First, run the development server:
-
+1. Install dependencies:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Run the development server:
+```bash
+npm run dev
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Project Structure
 
-## Learn More
+```
+app/
+├── (dashboard)/          # Dashboard layout group
+│   ├── layout.tsx       # Sidebar layout
+│   ├── page.tsx         # Dashboard home
+│   ├── new-analysis/    # New analysis page
+│   ├── prompt-library/  # Prompt library page
+│   └── settings/        # Settings page
+├── layout.tsx           # Root layout
+└── globals.css          # Global styles
 
-To learn more about Next.js, take a look at the following resources:
+components/
+└── sidebar.tsx          # Sidebar navigation
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Theme
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The app uses a dark theme with slate-950 as the base color. The theme is configured in `app/globals.css` and applied via the `dark` class on the `<html>` element.
 
-## Deploy on Vercel
+## Next Steps
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Implement screenshot upload functionality
+- Add AI-powered analysis
+- Build prompt generation system
+- Create prompt library management
