@@ -6,6 +6,8 @@ import { FilePreview } from "@/components/file-preview";
 import { AnalysisProgress } from "@/components/analysis-progress";
 import { AnalysisResults } from "@/components/analysis-results";
 import { ImageWithHotspots } from "@/components/image-with-hotspots";
+import { ComponentTree } from "@/components/component-tree";
+import { ComponentDetailsPanel } from "@/components/component-details-panel";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,6 +16,8 @@ import {
   mockAnalysisData,
   mockHotspots,
 } from "@/lib/mock-analysis";
+import { mockComponentTree } from "@/lib/mock-component-tree";
+import { ComponentNode } from "@/types/component-tree";
 
 type AnalysisState = "idle" | "analyzing" | "complete";
 
@@ -22,6 +26,8 @@ export default function NewAnalysisPage() {
   const [projectName, setProjectName] = useState("");
   const [analysisState, setAnalysisState] = useState<AnalysisState>("idle");
   const [currentStep, setCurrentStep] = useState(0);
+  const [selectedNode, setSelectedNode] = useState<ComponentNode | null>(null);
+  const [componentNodes, setComponentNodes] = useState(mockComponentTree);
 
   const progressSteps = [
     { label: "Uploading", status: "pending" as const },
@@ -55,6 +61,14 @@ export default function NewAnalysisPage() {
     });
 
     setAnalysisState("complete");
+  };
+
+  const handleNodeSelect = (node: ComponentNode) => {
+    setSelectedNode(node);
+  };
+
+  const handleNodesReorder = (nodes: ComponentNode[]) => {
+    setComponentNodes(nodes);
   };
 
   const canAnalyze = files.length > 0 && projectName.trim() !== "";
@@ -162,6 +176,7 @@ export default function NewAnalysisPage() {
               onClick={() => {
                 setAnalysisState("idle");
                 setCurrentStep(0);
+                setSelectedNode(null);
               }}
             >
               New Analysis
@@ -180,6 +195,27 @@ export default function NewAnalysisPage() {
             <div>
               <h3 className="text-xl font-semibold mb-4">Analysis Results</h3>
               <AnalysisResults data={mockAnalysisData} />
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mt-8">
+            <div className="lg:col-span-2">
+              <h3 className="text-xl font-semibold mb-4">Component Tree</h3>
+              <div className="bg-card border border-border rounded-lg p-4 max-h-[600px] overflow-auto">
+                <ComponentTree
+                  nodes={componentNodes}
+                  onNodeSelect={handleNodeSelect}
+                  onNodesReorder={handleNodesReorder}
+                  selectedNodeId={selectedNode?.id}
+                />
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xl font-semibold mb-4">Component Details</h3>
+              <div className="bg-card border border-border rounded-lg p-4 min-h-[400px]">
+                <ComponentDetailsPanel node={selectedNode} />
+              </div>
             </div>
           </div>
         </div>

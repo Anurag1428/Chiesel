@@ -50,6 +50,21 @@ The app uses a dark theme with slate-950 as the base color. The theme is configu
 
 ## Features
 
+### Component Tree
+
+Recursive, interactive component hierarchy viewer:
+
+- Collapsible/expandable nodes for nested structures
+- Click to select and view detailed information in side panel
+- Visual tech badges (Three.js, GSAP, Framer Motion, React, etc.)
+- Color-coded confidence indicators:
+  - Green (>80%): High confidence
+  - Yellow (50-80%): Medium confidence
+  - Red (<50%): Low confidence - needs review
+- Drag & drop to reorder components for manual adjustments
+- Displays component properties, detected technologies, and child counts
+- Supports sections, components, and elements
+
 ### New Analysis Page
 
 Upload and analyze design screenshots or videos:
