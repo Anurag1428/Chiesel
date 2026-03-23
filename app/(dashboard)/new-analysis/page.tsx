@@ -8,6 +8,7 @@ import { AnalysisResults } from "@/components/analysis-results";
 import { ImageWithHotspots } from "@/components/image-with-hotspots";
 import { ComponentTree } from "@/components/component-tree";
 import { ComponentDetailsPanel } from "@/components/component-details-panel";
+import { PromptEditor } from "@/components/prompt-editor";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +18,7 @@ import {
   mockHotspots,
 } from "@/lib/mock-analysis";
 import { mockComponentTree } from "@/lib/mock-component-tree";
+import { generateImplementationPrompt } from "@/lib/prompt-generator";
 import { ComponentNode } from "@/types/component-tree";
 
 type AnalysisState = "idle" | "analyzing" | "complete";
@@ -28,6 +30,7 @@ export default function NewAnalysisPage() {
   const [currentStep, setCurrentStep] = useState(0);
   const [selectedNode, setSelectedNode] = useState<ComponentNode | null>(null);
   const [componentNodes, setComponentNodes] = useState(mockComponentTree);
+  const [generatedPrompt, setGeneratedPrompt] = useState("");
 
   const progressSteps = [
     { label: "Uploading", status: "pending" as const },
@@ -59,6 +62,14 @@ export default function NewAnalysisPage() {
     await simulateAnalysis((step) => {
       setCurrentStep(step);
     });
+
+    // Generate the implementation prompt
+    const prompt = generateImplementationPrompt({
+      projectName,
+      analysisData: mockAnalysisData,
+      componentTree: mockComponentTree,
+    });
+    setGeneratedPrompt(prompt);
 
     setAnalysisState("complete");
   };
@@ -177,6 +188,7 @@ export default function NewAnalysisPage() {
                 setAnalysisState("idle");
                 setCurrentStep(0);
                 setSelectedNode(null);
+                setGeneratedPrompt("");
               }}
             >
               New Analysis
@@ -217,6 +229,13 @@ export default function NewAnalysisPage() {
                 <ComponentDetailsPanel node={selectedNode} />
               </div>
             </div>
+          </div>
+
+          <div className="mt-8">
+            <PromptEditor
+              initialPrompt={generatedPrompt}
+              projectName={projectName}
+            />
           </div>
         </div>
       )}

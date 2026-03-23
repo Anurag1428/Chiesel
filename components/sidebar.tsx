@@ -2,13 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LayoutDashboard, Plus, Library, Settings, Network } from "lucide-react";
+import {
+  LayoutDashboard,
+  Plus,
+  Library,
+  Settings,
+  Network,
+  FileText,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/new-analysis", label: "New Analysis", icon: Plus },
   { href: "/component-tree-demo", label: "Component Tree", icon: Network },
+  { href: "/prompt-demo", label: "Prompt Generator", icon: FileText },
   { href: "/prompt-library", label: "Prompt Library", icon: Library },
   { href: "/settings", label: "Settings", icon: Settings },
 ];

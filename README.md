@@ -50,6 +50,35 @@ The app uses a dark theme with slate-950 as the base color. The theme is configu
 
 ## Features
 
+### Prompt Generation Engine
+
+Automatically generates comprehensive implementation prompts from design analysis:
+
+**Prompt Sections:**
+1. Master Implementation Prompt (header with project info)
+2. General Rules (pixel perfection, responsive design, accessibility)
+3. Tech Stack Detection (recommended libraries based on visual cues)
+4. Component Breakdown (recursive tree structure with all details)
+5. Design System (CSS variables for colors, typography scale)
+6. Interactions & Animations (scroll triggers, hover states, complexity-based recommendations)
+7. Performance Requirements (Lighthouse targets, optimization strategies)
+
+**Editor Features:**
+- Monaco Editor with markdown syntax highlighting
+- Live editing with dark theme
+- Copy to clipboard functionality
+- Export options:
+  - Raw Markdown (.md)
+  - Cursor Rules (.cursorrules)
+  - Claude Code Instructions (.md)
+
+**Smart Recommendations:**
+- Detects 3D elements → suggests Three.js
+- High animation complexity → suggests GSAP
+- Medium complexity → suggests Framer Motion
+- Low complexity → suggests CSS animations
+- Extracts all detected technologies from component tree
+
 ### Component Tree
 
 Recursive, interactive component hierarchy viewer:
