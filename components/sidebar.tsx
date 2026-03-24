@@ -9,13 +9,17 @@ import {
   Settings,
   Network,
   FileText,
+  Box,
+  Video,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const navItems = [
   { href: "/", label: "Dashboard", icon: LayoutDashboard },
   { href: "/new-analysis", label: "New Analysis", icon: Plus },
+  { href: "/video-analysis", label: "Video Analysis", icon: Video },
   { href: "/component-tree-demo", label: "Component Tree", icon: Network },
+  { href: "/three-d-demo", label: "3D Configurator", icon: Box },
   { href: "/prompt-demo", label: "Prompt Generator", icon: FileText },
   { href: "/prompt-library", label: "Prompt Library", icon: Library },
   { href: "/settings", label: "Settings", icon: Settings },

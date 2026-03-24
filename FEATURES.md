@@ -5,7 +5,56 @@ DesignToCode is a comprehensive tool that analyzes website screenshots and gener
 
 ## Core Features
 
-### 1. File Upload & Analysis
+### 1. Video Frame Extraction & Motion Analysis
+
+**Client-Side Video Processing:**
+- FFmpeg.wasm integration for browser-based processing
+- No server upload required (privacy-friendly)
+- Supports MP4 video format
+- Progress tracking during extraction
+
+**Frame Extraction:**
+- Extracts 5 frames evenly spaced throughout video
+- Automatic timestamp calculation
+- High-quality PNG output
+- Efficient memory management
+
+**Filmstrip Timeline:**
+- Visual timeline with film sprocket holes
+- Click to select any frame
+- Timestamp display (MM:SS.MS format)
+- Active frame highlighting
+- Timeline progress bar
+- Horizontal scroll for navigation
+
+**Motion Detection View:**
+- Side-by-side frame comparison
+- Visual diff overlay (blend mode)
+- Toggle diff on/off
+- Detected changes list:
+  - Position changes (X/Y coordinates)
+  - Scale transformations
+  - Opacity transitions
+  - Rotation detection
+
+**Animation Parameters:**
+- Duration input (0-10 seconds, 0.1 step)
+- Easing function selector:
+  - Spring
+  - Bounce
+  - Linear
+  - Ease In/Out/In-Out
+- Motion intensity (Low/Medium/High)
+- Generated CSS preview
+- Real-time parameter updates
+
+**MVP Implementation:**
+- Full UI/UX complete
+- Mock motion detection
+- Ready for CV analysis integration
+- All parameters user-adjustable
+
+### 2. File Upload & Analysis
 - **Multi-file Upload**: Support for up to 5 files (PNG, JPG, WEBP, MP4)
 - **Drag & Drop Interface**: Intuitive file upload with visual feedback
 - **File Preview**: Thumbnail previews with remove functionality

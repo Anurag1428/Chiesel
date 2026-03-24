@@ -1,10 +1,12 @@
 import { AnalysisData } from "@/components/analysis-results";
 import { ComponentNode } from "@/types/component-tree";
+import { ThreeDConfig } from "@/types/three-config";
 
 interface PromptGenerationInput {
   projectName: string;
   analysisData: AnalysisData;
   componentTree: ComponentNode[];
+  threeDConfig?: ThreeDConfig;
 }
 
 function generateComponentBreakdown(
@@ -41,7 +43,7 @@ function generateComponentBreakdown(
 export function generateImplementationPrompt(
   input: PromptGenerationInput
 ): string {
-  const { projectName, analysisData, componentTree } = input;
+  const { projectName, analysisData, componentTree, threeDConfig } = input;
 
   const prompt = `# MASTER IMPLEMENTATION PROMPT
 
@@ -91,6 +93,186 @@ ${Array.from(
 )
   .map((tech) => `- ${tech}`)
   .join("\n")}
+
+${
+  threeDConfig
+    ? `
+---
+
+## THREE.JS CONFIGURATION
+
+The design includes 3D elements. Use the following configuration for Three.js implementation:
+
+### Material Properties
+\`\`\`javascript
+const material = new THREE.MeshPhysicalMaterial({
+  transmission: ${threeDConfig.material.transmission},
+  roughness: ${threeDConfig.material.roughness},
+  metalness: ${threeDConfig.material.metalness},
+  clearcoat: ${threeDConfig.material.clearcoat},
+  clearcoatRoughness: 0.1,
+});
+\`\`\`
+
+**Material Notes:**
+- Transmission: ${threeDConfig.material.transmission} ${
+        threeDConfig.material.transmission > 0.5
+          ? "(glass-like transparency)"
+          : "(mostly opaque)"
+      }
+- Roughness: ${threeDConfig.material.roughness} ${
+        threeDConfig.material.roughness > 0.5 ? "(matte finish)" : "(glossy finish)"
+      }
+- Metalness: ${threeDConfig.material.metalness} ${
+        threeDConfig.material.metalness > 0.5 ? "(metallic)" : "(non-metallic)"
+      }
+- Clearcoat: ${threeDConfig.material.clearcoat} ${
+        threeDConfig.material.clearcoat > 0.5
+          ? "(car paint effect)"
+          : "(no clearcoat)"
+      }
+
+### Geometry
+\`\`\`javascript
+const geometry = new THREE.${
+        threeDConfig.geometry.type.charAt(0).toUpperCase() +
+        threeDConfig.geometry.type.slice(1)
+      }Geometry(
+  1, // size/radius
+  ${threeDConfig.geometry.segments}, // segments
+  ${threeDConfig.geometry.segments}  // detail level
+);
+\`\`\`
+
+**Geometry Type:** ${threeDConfig.geometry.type}  
+**Segments:** ${threeDConfig.geometry.segments} (${
+        threeDConfig.geometry.segments > 64
+          ? "high detail"
+          : threeDConfig.geometry.segments > 32
+          ? "medium detail"
+          : "low detail"
+      })
+
+### Lighting Setup
+\`\`\`javascript
+// Ambient Light
+const ambientLight = new THREE.AmbientLight(0xffffff, ${threeDConfig.lighting.ambientIntensity});
+scene.add(ambientLight);
+
+// Directional Light
+const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+directionalLight.position.set(${threeDConfig.lighting.directionalPosition.x}, ${threeDConfig.lighting.directionalPosition.y}, ${threeDConfig.lighting.directionalPosition.z});
+scene.add(directionalLight);
+
+// Point Light
+const pointLight = new THREE.PointLight(${threeDConfig.lighting.pointLightColor}, 1, 100);
+pointLight.position.set(2, 2, 2);
+scene.add(pointLight);
+\`\`\`
+
+### Camera Configuration
+\`\`\`javascript
+const camera = new THREE.PerspectiveCamera(
+  ${threeDConfig.camera.fov}, // FOV
+  window.innerWidth / window.innerHeight, // aspect ratio
+  0.1, // near plane
+  1000 // far plane
+);
+
+camera.position.set(${threeDConfig.camera.position.x}, ${threeDConfig.camera.position.y}, ${threeDConfig.camera.position.z});
+camera.lookAt(${threeDConfig.camera.lookAt.x}, ${threeDConfig.camera.lookAt.y}, ${threeDConfig.camera.lookAt.z});
+\`\`\`
+
+### Animation & Controls
+\`\`\`javascript
+import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
+
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enableDamping = ${threeDConfig.animation.enableDamping};
+${
+  threeDConfig.animation.enableDamping
+    ? `controls.dampingFactor = ${threeDConfig.animation.dampingFactor};`
+    : ""
+}
+controls.autoRotate = ${threeDConfig.animation.autoRotateSpeed > 0};
+${
+  threeDConfig.animation.autoRotateSpeed > 0
+    ? `controls.autoRotateSpeed = ${threeDConfig.animation.autoRotateSpeed};`
+    : ""
+}
+
+// Animation loop
+function animate() {
+  requestAnimationFrame(animate);
+  controls.update();
+  renderer.render(scene, camera);
+}
+animate();
+\`\`\`
+
+**Animation Settings:**
+- Auto-rotate: ${threeDConfig.animation.autoRotateSpeed > 0 ? "Enabled" : "Disabled"}${
+        threeDConfig.animation.autoRotateSpeed > 0
+          ? ` (speed: ${threeDConfig.animation.autoRotateSpeed})`
+          : ""
+      }
+- Damping: ${threeDConfig.animation.enableDamping ? "Enabled" : "Disabled"}${
+        threeDConfig.animation.enableDamping
+          ? ` (factor: ${threeDConfig.animation.dampingFactor})`
+          : ""
+      }
+
+### React Three Fiber Implementation
+\`\`\`tsx
+import { Canvas } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+
+export function Scene3D() {
+  return (
+    <Canvas camera={{ 
+      fov: ${threeDConfig.camera.fov}, 
+      position: [${threeDConfig.camera.position.x}, ${threeDConfig.camera.position.y}, ${threeDConfig.camera.position.z}] 
+    }}>
+      <ambientLight intensity={${threeDConfig.lighting.ambientIntensity}} />
+      <directionalLight 
+        position={[${threeDConfig.lighting.directionalPosition.x}, ${threeDConfig.lighting.directionalPosition.y}, ${threeDConfig.lighting.directionalPosition.z}]} 
+      />
+      <pointLight 
+        color="${threeDConfig.lighting.pointLightColor}" 
+        position={[2, 2, 2]} 
+      />
+      
+      <mesh>
+        <${threeDConfig.geometry.type}Geometry args={[1, ${threeDConfig.geometry.segments}, ${threeDConfig.geometry.segments}]} />
+        <meshPhysicalMaterial
+          transmission={${threeDConfig.material.transmission}}
+          roughness={${threeDConfig.material.roughness}}
+          metalness={${threeDConfig.material.metalness}}
+          clearcoat={${threeDConfig.material.clearcoat}}
+        />
+      </mesh>
+      
+      <OrbitControls
+        enableDamping={${threeDConfig.animation.enableDamping}}
+        ${
+          threeDConfig.animation.enableDamping
+            ? `dampingFactor={${threeDConfig.animation.dampingFactor}}`
+            : ""
+        }
+        autoRotate={${threeDConfig.animation.autoRotateSpeed > 0}}
+        ${
+          threeDConfig.animation.autoRotateSpeed > 0
+            ? `autoRotateSpeed={${threeDConfig.animation.autoRotateSpeed}}`
+            : ""
+        }
+      />
+    </Canvas>
+  );
+}
+\`\`\`
+`
+    : ""
+}
 
 ---
 

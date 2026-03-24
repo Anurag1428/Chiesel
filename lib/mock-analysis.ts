@@ -8,7 +8,7 @@ export const mockAnalysisData: AnalysisData = {
     "Sizes: 48px (hero), 24px (headings), 16px (body)",
   ],
   colors: ["#0F172A", "#3B82F6", "#F8FAFC", "#64748B", "#10B981"],
-  has3D: false,
+  has3D: true,
   animationComplexity: "medium",
 };
 
