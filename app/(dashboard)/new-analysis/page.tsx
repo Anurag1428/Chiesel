@@ -20,7 +20,24 @@ import { ComponentNode } from "@/types/component-tree";
 import { ThreeDConfig, defaultThreeDConfig } from "@/types/three-config";
 import { SavedAnalysis, ShareableData } from "@/types/saved-analysis";
 import { AnalysisData } from "@/components/analysis-results";
+import { WorkflowStepsDiagram } from "@/components/workflow-steps-diagram";
+import { MindMapDiagram } from "@/components/mind-map-diagram";
 import { Share2, Save } from "lucide-react";
+
+interface WorkflowStep {
+  phase: string;
+  icon: string;
+  steps: string[];
+}
+
+interface MindMapData {
+  center: string;
+  branches: Array<{
+    label: string;
+    color: string;
+    nodes: string[];
+  }>;
+}
 
 type AnalysisState = "idle" | "analyzing" | "complete";
 
@@ -38,6 +55,8 @@ export default function NewAnalysisPage() {
   const [analysisError, setAnalysisError] = useState<string | null>(null);
   const [realAnalysisData, setRealAnalysisData] = useState<AnalysisData | null>(null);
   const [hotspots, setHotspots] = useState<Array<{id: string; x: number; y: number; label: string; description: string}>>([]);
+  const [workflowSteps, setWorkflowSteps] = useState<WorkflowStep[]>([]);
+  const [mindMapData, setMindMapData] = useState<MindMapData | null>(null);
 
   const progressSteps = [
     { label: "Uploading", status: "pending" as const },
@@ -106,6 +125,16 @@ export default function NewAnalysisPage() {
       // Update state with AI results
       setRealAnalysisData(result.analysisData);
       setComponentNodes(result.componentTree);
+      
+      // Set workflow steps from AI if available
+      if (result.workflowSteps && result.workflowSteps.length > 0) {
+        setWorkflowSteps(result.workflowSteps);
+      }
+      
+      // Set mind map data from AI if available
+      if (result.mindMapDiagram) {
+        setMindMapData(result.mindMapDiagram);
+      }
       
       // Generate hotspots from component tree
       const generatedHotspots = result.componentTree.slice(0, 3).map((node: ComponentNode, index: number) => ({
@@ -458,6 +487,13 @@ export default function NewAnalysisPage() {
               projectName={projectName}
             />
           </div>
+
+          {/* Workflow Diagram */}
+          {workflowSteps.length > 0 && (
+            <div className="mt-8">
+              <WorkflowStepsDiagram steps={workflowSteps} />
+            </div>
+          )}
         </div>
       )}
 

@@ -29,7 +29,7 @@ export function VideoFrameExtractor({
     setProgress(0);
 
     try {
-      const frames = await extractFrames(videoFile, 5, (prog) => {
+      const frames = await extractFrames(videoFile, 10, (prog) => {
         setProgress(prog);
       });
 
@@ -44,8 +44,26 @@ export function VideoFrameExtractor({
 
   if (error) {
     return (
-      <div className="bg-destructive/10 border border-destructive rounded-lg p-6 text-center">
-        <p className="text-destructive">{error}</p>
+      <div className="bg-destructive/10 border border-destructive rounded-lg p-6">
+        <div className="text-center space-y-4">
+          <p className="text-destructive font-medium">{error}</p>
+          <div className="space-y-2">
+            <p className="text-sm text-muted-foreground">
+              Troubleshooting tips:
+            </p>
+            <ul className="text-xs text-muted-foreground space-y-1">
+              <li>• Ensure the video is in MP4 or WebM format</li>
+              <li>• Try a smaller video file (under 50MB recommended)</li>
+              <li>• Check that the video plays in your browser</li>
+            </ul>
+          </div>
+          <Button
+            variant="outline"
+            onClick={extractVideoFrames}
+          >
+            Try Again
+          </Button>
+        </div>
       </div>
     );
   }

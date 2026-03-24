@@ -18,14 +18,25 @@ export async function extractFrames(
 
     video.preload = 'metadata';
     video.muted = true;
+    video.playsInline = true;
+    
+    let hasResolved = false;
     
     video.onloadedmetadata = async () => {
+      if (hasResolved) return;
+      
       const duration = video.duration;
+      
+      if (!duration || duration === Infinity || isNaN(duration)) {
+        reject(new Error('Invalid video duration. Please try a different video file.'));
+        return;
+      }
+      
       const frames: VideoFrame[] = [];
       const interval = duration / (frameCount + 1);
       
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
+      canvas.width = video.videoWidth || 640;
+      canvas.height = video.videoHeight || 480;
       
       try {
         for (let i = 1; i <= frameCount; i++) {
@@ -42,7 +53,7 @@ export async function extractFrames(
             canvas.toBlob((b) => {
               if (b) res(b);
               else rej(new Error('Failed to create blob'));
-            }, 'image/png');
+            }, 'image/jpeg', 0.9);
           });
           
           const imageUrl = URL.createObjectURL(blob);
@@ -59,20 +70,34 @@ export async function extractFrames(
           }
         }
         
+        hasResolved = true;
         URL.revokeObjectURL(video.src);
         resolve(frames);
       } catch (error) {
+        hasResolved = true;
         URL.revokeObjectURL(video.src);
         reject(error);
       }
     };
     
-    video.onerror = () => {
+    video.onerror = (e) => {
+      if (hasResolved) return;
+      hasResolved = true;
       URL.revokeObjectURL(video.src);
-      reject(new Error('Failed to load video'));
+      reject(new Error('Failed to load video. Please ensure the file is a valid video format (MP4, WebM).'));
     };
     
+    // Timeout after 30 seconds
+    setTimeout(() => {
+      if (!hasResolved) {
+        hasResolved = true;
+        URL.revokeObjectURL(video.src);
+        reject(new Error('Video loading timeout. Please try a smaller video file.'));
+      }
+    }, 30000);
+    
     video.src = URL.createObjectURL(videoFile);
+    video.load();
   });
 }
 
