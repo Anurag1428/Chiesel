@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-const NVIDIA_API_KEY = "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";
+const NVIDIA_API_KEY = process.env.NVIDIA_API_KEY || "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";
 const NVIDIA_API_URL = "https://integrate.api.nvidia.com/v1/chat/completions";
 
 export async function POST(request: NextRequest) {
@@ -44,6 +44,9 @@ ${multiFrameInfo}
 ` : "";
       
       // Use Kimi K2.5 directly with vision support
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 120000); // 2 minute timeout - faster failure
+      
       const response = await fetch(NVIDIA_API_URL, {
         method: "POST",
         headers: {
@@ -51,6 +54,7 @@ ${multiFrameInfo}
           "Accept": "application/json",
           "Content-Type": "application/json",
         },
+        signal: controller.signal,
         body: JSON.stringify({
           model: "moonshotai/kimi-k2.5",
           messages: [
@@ -205,17 +209,28 @@ CRITICAL: Your response must be ONLY JSON, no other text before or after!
   "enhancedPrompt": "DETAILED IMPLEMENTATION GUIDE:\n\n## VISUAL ANALYSIS\n- Exact measurements\n- Precise colors\n- Font specifications\n\n## 3D SPECIFICATIONS (if detected)\n- Three.js geometry\n- Material properties\n- Lighting setup\n\n## COMPONENT BREAKDOWN\n- Every UI element\n- Props and styling\n\n## CODE EXAMPLES\n- Three.js setup\n- Material configs\n- Animation code"
 }
 
-IMPORTANT:
-1. For 3D detection: Look for spheres, cubes, realistic lighting, shadows, reflections, depth, specular highlights
-2. If ANY 3D indicators → set "has3D": true
-3. Make enhancedPrompt extremely detailed with exact measurements, Three.js code, material properties
-4. Generate workflowSteps as a step-by-step implementation guide (3-5 phases with specific actionable steps)
-5. Generate mindMapDiagram with 4-6 branches, each containing 3-5 detailed technical nodes
-6. ${isVideo ? 'FOR VIDEO: Extract EVERY visible component - aim for 10-20+ components with proper nesting' : 'Extract all visible components with proper hierarchy'}
-7. ${isVideo ? 'FOR VIDEO: Generate scrollAnimations object with architecture pattern, specific triggers for each section with GSAP code examples, setup instructions, and implementation notes' : ''}
-8. Return ONLY the JSON object, no markdown, no extra text
+3D VISUAL SIGNALS (check for these):
+- Geometry: Spheres, cubes, cylinders, complex meshes, smooth normals
+- Materials: Metallic surfaces, glass/transparency, roughness variation, subsurface scattering
+- Lighting: Multiple light sources, shadows (hard/soft), ambient occlusion, rim lighting, HDR environment
+- Depth: Perspective distortion, focal blur, atmospheric fog, Z-depth layering
+- Reflections: Mirror reflections, environment maps, Fresnel effects, specular highlights
+- Textures: Normal maps, bump maps, displacement, UV mapping patterns
+- Motion: Rotation indicators, orbit controls, parallax, camera movement cues
+- Post-FX: Bloom, chromatic aberration, vignette, color grading
 
-START YOUR RESPONSE WITH { and END WITH }`,
+EXTRACTION RULES:
+1. Measure EXACT spacing (padding, margins, gaps) in px or rem
+2. Extract ALL colors with hex codes and their usage context
+3. Identify font families, sizes (px), weights (100-900), line-heights
+4. For 3D: Specify geometry type, material properties (roughness 0-1, metalness 0-1), lighting setup
+5. Component tree: Deep nesting (10-20+ components for complex UIs), include ALL props (dimensions, colors, positioning)
+6. workflowSteps: 3-5 phases with specific technical steps
+7. mindMapDiagram: 5-6 branches with 3-5 technical nodes each
+8. ${isVideo ? 'scrollAnimations: Architecture + 3-5 triggers with GSAP code + setup notes' : ''}
+9. enhancedPrompt: Detailed implementation guide with code examples
+
+Return ONLY valid JSON starting with { and ending with }`,
                 },
                 {
                   type: "image_url",
@@ -244,11 +259,20 @@ START YOUR RESPONSE WITH { and END WITH }`,
         }),
       });
 
+      
+      clearTimeout(timeoutId);
+
       if (!response.ok) {
         const errorText = await response.text();
-        console.error("Kimi vision API error:", errorText);
+        console.error("Kimi vision API error:", response.status, errorText);
+        console.error("Request details:", {
+          model: "moonshotai/kimi-k2.5",
+          max_tokens: 6000,
+          imageSize: base64Image.length,
+          additionalFrames: additionalFrames?.length || 0
+        });
         return NextResponse.json(
-          { error: `Analysis failed: ${errorText}` },
+          { error: `Analysis failed: ${response.status} - ${errorText}` },
           { status: response.status }
         );
       }
@@ -314,4 +338,4 @@ START YOUR RESPONSE WITH { and END WITH }`,
   }
 }
 
-export const maxDuration = 60; // Allow up to 60 seconds for API calls
+export const maxDuration = 300; // Allow up to 5 minutes for API calls
